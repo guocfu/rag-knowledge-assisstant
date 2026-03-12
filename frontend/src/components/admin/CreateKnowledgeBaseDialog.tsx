@@ -42,7 +42,7 @@ const formSchema = z.object({
     .string()
     .min(1, "请输入Collection名称")
     .max(50, "名称不能超过50个字符")
-    .regex(/^[a-zA-Z0-9_]+$/, "只能包含字母、数字和下划线"),
+    .regex(/^[a-z0-9]+$/, "只能包含小写英文字母和数字"),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -217,10 +217,10 @@ export function CreateKnowledgeBaseDialog({
                 <FormItem>
                   <FormLabel>Collection名称</FormLabel>
                   <FormControl>
-                    <Input placeholder="例如：product_docs" {...field} />
+                    <Input placeholder="例如：productdocs" {...field} />
                   </FormControl>
                   <FormDescription>
-                    Milvus中的Collection名称，只能包含字母、数字和下划线
+                    只能包含小写英文字母和数字
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

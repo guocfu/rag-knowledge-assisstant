@@ -218,7 +218,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                   type="button"
                   className="mt-2 inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/70 px-3 py-1.5 text-xs font-semibold text-[#1D4ED8] transition-colors hover:bg-white"
                   onClick={() => {
-                    navigate("/admin");
+                    window.open("/admin", "_blank");
                     onClose();
                   }}
                 >
