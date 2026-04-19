@@ -47,7 +47,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
 
 import static com.nageoffer.ai.ragent.rag.constant.RAGConstant.DEFAULT_TOP_K;
 import static com.nageoffer.ai.ragent.rag.constant.RAGConstant.MULTI_CHANNEL_KEY;
@@ -60,9 +59,6 @@ import static com.nageoffer.ai.ragent.rag.constant.RAGConstant.MULTI_CHANNEL_KEY
 @Service
 @RequiredArgsConstructor
 public class RetrievalEngine {
-
-    private static final long MCP_TOOL_TIMEOUT_SECONDS = 30;
-    private static final long RETRIEVAL_CONTEXT_TIMEOUT_SECONDS = 45;
 
     private final ContextFormatter contextFormatter;
     private final MCPParameterExtractor mcpParameterExtractor;
@@ -87,24 +83,19 @@ public class RetrievalEngine {
         int finalTopK = topK > 0 ? topK : DEFAULT_TOP_K;
         List<CompletableFuture<SubQuestionContext>> tasks = subIntents.stream()
                 .map(si -> CompletableFuture.supplyAsync(
-                                () -> {
-                                    try {
-                                        return buildSubQuestionContext(
-                                                si,
-                                                resolveSubQuestionTopK(si, finalTopK)
-                                        );
-                                    } catch (Exception e) {
-                                        log.error("子问题上下文构建失败，降级为空上下文，question：{}", si.subQuestion(), e);
-                                        return new SubQuestionContext(si.subQuestion(), "", "", Map.of());
-                                    }
-                                },
-                                ragContextExecutor
-                        )
-                        .orTimeout(RETRIEVAL_CONTEXT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-                        .exceptionally(e -> {
-                            log.error("子问题上下文构建超时，降级为空上下文，question：{}", si.subQuestion(), e);
-                            return new SubQuestionContext(si.subQuestion(), "", "", Map.of());
-                        }))
+                        () -> {
+                            try {
+                                return buildSubQuestionContext(
+                                        si,
+                                        resolveSubQuestionTopK(si, finalTopK)
+                                );
+                            } catch (Exception e) {
+                                log.error("子问题上下文构建失败，降级为空上下文，question：{}", si.subQuestion(), e);
+                                return new SubQuestionContext(si.subQuestion(), "", "", Map.of());
+                            }
+                        },
+                        ragContextExecutor
+                ))
                 .toList();
         List<SubQuestionContext> contexts = tasks.stream()
                 .map(CompletableFuture::join)
@@ -215,19 +206,19 @@ public class RetrievalEngine {
         }
 
         List<CompletableFuture<MCPResponse>> futures = mcpIntentScores.stream()
-                .map(ns -> {
-                    String toolId = ns.getNode().getMcpToolId();
-                    return CompletableFuture
-                            .supplyAsync(() -> {
+                .map(ns -> CompletableFuture.supplyAsync(
+                        () -> {
+                            try {
                                 MCPRequest request = buildMcpRequest(question, ns.getNode());
                                 return request == null ? null : executeSingleMcpTool(request);
-                            }, mcpBatchExecutor)
-                            .orTimeout(MCP_TOOL_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-                            .exceptionally(e -> {
-                                log.error("MCP 工具调用超时或异常, toolId: {}", toolId, e);
-                                return MCPResponse.error(toolId, "TIMEOUT", "工具调用超时或异常: " + e.getMessage());
-                            });
-                })
+                            } catch (Exception e) {
+                                String toolId = ns.getNode().getMcpToolId();
+                                log.error("MCP 工具调用异常, toolId: {}", toolId, e);
+                                return MCPResponse.error(toolId, "EXECUTION_ERROR", "工具调用异常: " + e.getMessage());
+                            }
+                        },
+                        mcpBatchExecutor
+                ))
                 .toList();
 
         return futures.stream()

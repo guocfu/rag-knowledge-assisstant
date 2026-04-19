@@ -22,6 +22,7 @@ import com.nageoffer.ai.ragent.rag.core.mcp.MCPToolRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
@@ -39,6 +40,7 @@ import java.util.List;
 public class MCPClientAutoConfiguration {
 
     private final MCPClientProperties properties;
+    @Qualifier("syncHttpClient")
     private final OkHttpClient okHttpClient;
     private final MCPToolRegistry toolRegistry;
 
