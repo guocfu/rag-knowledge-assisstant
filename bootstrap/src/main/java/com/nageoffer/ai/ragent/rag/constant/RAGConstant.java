@@ -99,6 +99,12 @@ public class RAGConstant {
     public static final String GUIDANCE_PROMPT_PATH = "prompt/guidance-prompt.st";
 
     /**
+     * 歧义确认提示词模板路径
+     * 用于边界 case 时调 LLM 二次确认是否存在品类歧义
+     */
+    public static final String GUIDANCE_AMBIGUITY_CHECK_PROMPT_PATH = "prompt/guidance-ambiguity-check.st";
+
+    /**
      * 系统对话提示词模板路径
      * 定义企业知识助手「小码」的角色设定和对话规则，包括打招呼、自我介绍、问题分类处理等场景。模板通过 {@code {question}} 占位符接收用户问题。
      */
