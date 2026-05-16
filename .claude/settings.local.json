@@ -53,7 +53,9 @@
       "Bash(mvn -pl bootstrap -am compile -q -DskipTests)",
       "Bash(mvn -pl bootstrap -am compile -DskipTests)",
       "Bash(mvn -pl bootstrap -am clean compile -DskipTests)",
-      "Bash(mvn -pl bootstrap -am clean compile -DskipTests -Dmaven.compiler.showDeprecation=true)"
+      "Bash(mvn -pl bootstrap -am clean compile -DskipTests -Dmaven.compiler.showDeprecation=true)",
+      "Bash(python \"C:\\\\Users\\\\Shinelon\\\\.claude\\\\tt-statusline.py\")",
+      "Bash(python \"C:\\\\Users\\\\Shinelon\\\\.claude\\\\statusline.py\")"
     ]
   }
 }
