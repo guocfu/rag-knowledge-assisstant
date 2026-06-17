@@ -25,7 +25,7 @@
 采用前后端分离的架构模式，后端按职责分为四个 Maven 模块：
 
 ```
-ragent/
+rag/
 ├── framework/     # 业务无关的通用基础设施层
 ├── infra-ai/      # AI 模型抽象层（依赖 framework）
 ├── bootstrap/     # 业务逻辑层（依赖 framework + infra-ai）
@@ -34,7 +34,7 @@ ragent/
 
 **依赖流向**: `bootstrap` → `infra-ai` → `framework`
 
-分层不是为了炫技，而是解决实际问题：`framework` 层提供与业务无关的通用能力，`infra-ai` 层屏蔽不同模型供应商的差异，`bootstrap` 层专注业务逻辑。换模型供应商不用改业务代码，换业务逻辑不用动基础设施。
+`framework` 层提供与业务无关的通用能力，`infra-ai` 层屏蔽不同模型供应商的差异，`bootstrap` 层专注业务逻辑。换模型供应商不用改业务代码，换业务逻辑不用动基础设施。
 
 ### 核心请求链路
 
